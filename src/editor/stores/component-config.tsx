@@ -1,12 +1,14 @@
 import {create} from 'zustand';
+import type { ComponentType } from 'react';
 import Container from '../materials/Container';
 import Button from '../materials/Button';
 import Page from '../materials/Page';
+import type { CommonComponentProps } from '../interface';
 
 export interface ComponentConfig {
     name: string;
-    defaultProps: Record<string, any>,
-    component: any
+    defaultProps: Record<string, unknown>,
+    component: ComponentType<CommonComponentProps>
 }
  
 interface State {

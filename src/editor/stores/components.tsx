@@ -3,7 +3,7 @@ import {create} from 'zustand';
 export interface Component {
   id: number;
   name: string;
-  props: any;
+  props: Record<string, unknown>;
   children?: Component[];
   parentId?: number;
 }
@@ -15,7 +15,7 @@ interface State {
 interface Action {
   addComponent: (component: Component, parentId?: number) => void;
   deleteComponent: (componentId: number) => void;
-  updateComponentProps: (componentId: number, props: any) => void;
+  updateComponentProps: (componentId: number, props: Record<string, unknown>) => void;
 }
 
 export const useComponetsStore = create<State & Action>(

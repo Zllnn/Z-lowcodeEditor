@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import { useDrag } from "react-dnd";
 
 export interface MaterialItemProps {
@@ -11,12 +10,15 @@ export function MaterialItem(props: MaterialItemProps) {
         name
     } = props;
 
-    const [_, drag] = useDrag({
+    const [, connectDrag] = useDrag({
         type: name,
         item: {
             type: name
         }
     });
+    const drag = (node: HTMLDivElement | null) => {
+        connectDrag(node);
+    };
 
     return <div
         ref={drag}

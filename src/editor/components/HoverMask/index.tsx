@@ -1,6 +1,6 @@
 import {
+  useCallback,
   useEffect,
-  useMemo,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
@@ -25,11 +25,7 @@ function HoverMask({ containerClassName, portalWrapperClassName, componentId }: 
 
   const { components } = useComponetsStore();
 
-  useEffect(() => {
-    updatePosition();
-  }, [componentId]);
-
-  function updatePosition() {
+  const updatePosition = useCallback(() => {
     if (!componentId) return;
 
     const container = document.querySelector(`.${containerClassName}`);
@@ -42,7 +38,7 @@ function HoverMask({ containerClassName, portalWrapperClassName, componentId }: 
     const { top: containerTop, left: containerLeft } = container.getBoundingClientRect();
 
     let labelTop = top - containerTop + container.scrollTop;
-    let labelLeft = left - containerLeft + width;
+    const labelLeft = left - containerLeft + width;
 
     if (labelTop <= 0) {
       labelTop -= -20;
@@ -50,21 +46,23 @@ function HoverMask({ containerClassName, portalWrapperClassName, componentId }: 
   
     setPosition({
       top: top - containerTop + container.scrollTop,
-      left: left - containerLeft + container.scrollTop,
+      left: left - containerLeft + container.scrollLeft,
       width,
       height,
       labelTop,
       labelLeft,
     });
-  }
+  }, [componentId, containerClassName]);
 
-  const el = useMemo(() => {
-      return document.querySelector(`.${portalWrapperClassName}`)!
-  }, []);
+  useEffect(() => {
+    const frameId = requestAnimationFrame(updatePosition);
+    return () => cancelAnimationFrame(frameId);
+  }, [updatePosition]);
 
-  const curComponent = useMemo(() => {
-    return getComponentById(componentId, components);
-  }, [componentId]);
+  const el = document.querySelector(`.${portalWrapperClassName}`);
+  const curComponent = getComponentById(componentId, components);
+
+  if (!el) return null;
 
   return createPortal((
     <>
