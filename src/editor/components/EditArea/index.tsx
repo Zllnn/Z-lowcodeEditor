@@ -63,18 +63,17 @@ export function EditArea() {
         }
     }
 
-    return <div className="h-[100%]"
-     onMouseOver={handleMouseOver} onMouseLeave={() => {    setHoverComponentId(undefined);}}
-    >
-        {/* <pre>
-            {JSON.stringify(components, null, 2)}
-        </pre> */}
-        {renderComponents(components)}
-        {hoverComponentId && (
-            <HoverMask
-               containerClassName='edit-area'
-                componentId={hoverComponentId}
-            />
-        )}
-    </div>
+return <div className="h-[100%] edit-area" onMouseOver={handleMouseOver} onMouseLeave={() => {
+    setHoverComponentId(undefined);
+}} onClick={handleClick}>
+    {renderComponents(components)}
+    {hoverComponentId && (
+        <HoverMask
+            portalWrapperClassName='portal-wrapper'
+            containerClassName='edit-area'
+            componentId={hoverComponentId}
+        />
+    )}
+    <div className="portal-wrapper"></div>
+</div>
 }
