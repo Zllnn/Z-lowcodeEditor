@@ -8,9 +8,9 @@ interface ButtonProps extends CommonComponentProps {
   text?: ReactNode;
 }
 
-const Button = ({id, type, text}: ButtonProps) => {
+const Button = ({id, type, text, styles}: ButtonProps) => {
   return (
-    <AntdButton data-component-id={id} type={type}>{text}</AntdButton>
+    <AntdButton data-component-id={id} type={type} style={styles}>{text}</AntdButton>
   )
 }
 
