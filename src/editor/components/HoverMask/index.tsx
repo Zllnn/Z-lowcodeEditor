@@ -58,6 +58,9 @@ function HoverMask({ containerClassName, portalWrapperClassName, componentId }: 
     const frameId = requestAnimationFrame(updatePosition);
     return () => cancelAnimationFrame(frameId);
   }, [updatePosition]);
+  useEffect(() => {
+      updatePosition();
+  }, [components]);
 
   const el = document.querySelector(`.${portalWrapperClassName}`);
   const curComponent = getComponentById(componentId, components);
