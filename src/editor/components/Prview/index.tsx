@@ -13,18 +13,27 @@ export function Preview() {
       const eventConfig = component.props[event.name];
 
       if (eventConfig) {
-        const { type } = eventConfig;
-
         props[event.name] = () => {
-          if (type === "goToLink" && eventConfig.url) {
-            window.location.href = eventConfig.url;
-          } else if (type === "showMessage" && eventConfig.config) {
-            if (eventConfig.config.type === "success") {
-              message.success(eventConfig.config.text);
-            } else if (eventConfig.config.type === "error") {
-              message.error(eventConfig.config.text);
+          eventConfig?.actions?.forEach((action: ActionConfig) => {
+            if (action.type === "goToLink") {
+              window.location.href = action.url;
+            } else if (action.type === "showMessage") {
+              if (action.config.type === "success") {
+                message.success(action.config.text);
+              } else if (action.config.type === "error") {
+                message.error(action.config.text);
+              }
+            } else if (action.type === "customJS") {
+              const func = new Function("context", action.code);
+              func({
+                name: component.name,
+                props: component.props,
+                showMessage(content: string) {
+                  message.success(content);
+                },
+              });
             }
-          }
+          });
         };
       }
     });
