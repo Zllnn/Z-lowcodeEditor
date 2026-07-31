@@ -1,13 +1,19 @@
 import { Modal as AntdModal } from 'antd';
-import { forwardRef, useImperativeHandle, useState } from 'react';
-import { CommonComponentProps } from '../../interface';
+import { forwardRef, useImperativeHandle, useState, type ReactNode } from 'react';
+import type { CommonComponentProps } from '../../interface';
 
 export interface ModalRef {
     open: () => void
     close: () => void
 }
 
-const Modal: React.ForwardRefRenderFunction<ModalRef, CommonComponentProps> = ({ children, title, onOk, onCancel, styles }, ref) => {
+interface ModalProps extends CommonComponentProps {
+  title?: ReactNode;
+  onOk?: () => void;
+  onCancel?: () => void;
+}
+
+const Modal = forwardRef<ModalRef, ModalProps>(function Modal({ children, title, onOk, onCancel, styles }, ref) {
 
   const [open, setOpen] = useState(false);
 
@@ -28,17 +34,17 @@ const Modal: React.ForwardRefRenderFunction<ModalRef, CommonComponentProps> = ({
       style={styles}
       open={open}
       onCancel={() => {
-        onCancel && onCancel();
+        onCancel?.();
         setOpen(false);
       }}
       onOk={() => {
-        onOk && onOk();
+        onOk?.();
       }}
       destroyOnClose
     >
       {children}
     </AntdModal>
   );
-}
+});
 
-export default forwardRef(Modal);
+export default Modal;

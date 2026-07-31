@@ -20,7 +20,7 @@ export function Setting() {
                 key === '属性' && <ComponentAttr />
             }
             {
-                key === '样式' && <ComponentStyle />
+                key === '样式' && <ComponentStyle key={curComponentId} />
             }
             {
                 key === '事件' && <ComponentEvent />

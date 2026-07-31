@@ -1,9 +1,10 @@
-import { CSSProperties } from "react";
+import type { CSSProperties } from "react";
 import { create } from "zustand";
 
 export interface Component {
   id: number;
   name: string;
+  desc: string;
   props: Record<string, unknown>;
   styles?: CSSProperties;
   children?: Component[];
@@ -12,6 +13,7 @@ export interface Component {
 
 interface State {
   components: Component[];
+  mode: "edit" | "preview";
   curComponentId?: number | null;
   curComponent: Component | null;
 }
@@ -19,8 +21,9 @@ interface State {
 interface Action {
   addComponent: (component: Component, parentId?: number) => void;
   deleteComponent: (componentId: number) => void;
-  updateComponentProps: (componentId: number, props: any) => void;
+  updateComponentProps: (componentId: number, props: Record<string, unknown>) => void;
   updateComponentStyles: (componentId: number, styles: CSSProperties) => void;
+  setMode: (mode: State["mode"]) => void;
   setCurComponentId: (componentId: number | null) => void;
 }
 export const useComponetsStore = create<State & Action>((set, get) => ({
@@ -32,8 +35,10 @@ export const useComponetsStore = create<State & Action>((set, get) => ({
       desc: "页面",
     },
   ],
+  mode: "edit",
   curComponentId: null,
   curComponent: null,
+  setMode: (mode) => set({ mode }),
   setCurComponentId: (componentId) =>
     set((state) => ({
       curComponentId: componentId,

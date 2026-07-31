@@ -1,12 +1,19 @@
-import { Tree } from "antd";
-import { useComponetsStore } from "../../stores/components";
+import { Tree, type TreeDataNode } from "antd";
+import { type Component, useComponetsStore } from "../../stores/components";
+
+function toTreeData(component: Component): TreeDataNode {
+    return {
+        key: component.id,
+        title: component.desc,
+        children: component.children?.map(toTreeData),
+    };
+}
 
 export function Outline() {
     const { components, setCurComponentId } = useComponetsStore();
 
     return <Tree
-        fieldNames={{ title: 'desc', key: 'id' }}
-        treeData={components as any}
+        treeData={components.map(toTreeData)}
         showLine
         defaultExpandAll
         onSelect={([selectedKey]) => {

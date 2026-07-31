@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { getComponentById, useComponetsStore } from "../../stores/components";
 import { Dropdown, Popconfirm, Space } from "antd";
@@ -32,23 +32,7 @@ function SelectedMask({
     setCurComponentId,
   } = useComponetsStore();
 
-  useEffect(() => {
-    updatePosition();
-  }, [componentId]);
-  useEffect(() => {
-    updatePosition();
-  }, [components]);
-  useEffect(() => {
-    const resizeHandler = () => {
-      updatePosition();
-    };
-    window.addEventListener("resize", resizeHandler);
-    return () => {
-      window.removeEventListener("resize", resizeHandler);
-    };
-  }, []);
-
-  function updatePosition() {
+  const updatePosition = useCallback(() => {
     if (!componentId) return;
 
     const container = document.querySelector(`.${containerClassName}`);
@@ -62,7 +46,7 @@ function SelectedMask({
       container.getBoundingClientRect();
 
     let labelTop = top - containerTop + container.scrollTop;
-    let labelLeft = left - containerLeft + width;
+    const labelLeft = left - containerLeft + width;
 
     if (labelTop <= 0) {
       labelTop -= -20;
@@ -70,28 +54,33 @@ function SelectedMask({
 
     setPosition({
       top: top - containerTop + container.scrollTop,
-      left: left - containerLeft + container.scrollTop,
+      left: left - containerLeft + container.scrollLeft,
       width,
       height,
       labelTop,
       labelLeft,
     });
-  }
+  }, [componentId, containerClassName]);
 
-  const el = useMemo(() => {
-    return document.querySelector(`.${portalWrapperClassName}`)!;
-  }, []);
+  useEffect(() => {
+    const frameId = requestAnimationFrame(updatePosition);
+    return () => cancelAnimationFrame(frameId);
+  }, [components, updatePosition]);
 
-  const curSelectedComponent = useMemo(() => {
-    return getComponentById(componentId, components);
-  }, [componentId]);
+  useEffect(() => {
+    window.addEventListener("resize", updatePosition);
+    return () => window.removeEventListener("resize", updatePosition);
+  }, [updatePosition]);
+
+  const el = document.querySelector(`.${portalWrapperClassName}`);
+  const curSelectedComponent = getComponentById(componentId, components);
 
   function handleDelete() {
     deleteComponent(curComponentId!);
     setCurComponentId(null);
   }
 
-  const parentComponents = useMemo(() => {
+  const parentComponents = (() => {
     const parentComponents = [];
     let component = curComponent;
 
@@ -101,7 +90,9 @@ function SelectedMask({
     }
 
     return parentComponents;
-  }, [curComponent]);
+  })();
+
+  if (!el) return null;
 
   return createPortal(
     <>

@@ -1,20 +1,29 @@
 import React from "react";
+import { message } from "antd";
 import { useComponentConfigStore } from "../../stores/component-config";
-import { Component, useComponetsStore } from "../../stores/components";
+import { type Component, useComponetsStore } from "../../stores/components";
+import type { ActionConfig } from "../Setting/ActionModal";
+
+function getActions(value: unknown): ActionConfig[] {
+  if (!value || typeof value !== "object" || !("actions" in value)) return [];
+  const actions = value.actions;
+  return Array.isArray(actions) ? actions as ActionConfig[] : [];
+}
 
 export function Preview() {
   const { components } = useComponetsStore();
   const { componentConfig } = useComponentConfigStore();
 
   function handleEvent(component: Component) {
-    const props: Record<string, any> = {};
+    const props: Record<string, () => void> = {};
 
     componentConfig[component.name].events?.forEach((event) => {
       const eventConfig = component.props[event.name];
 
-      if (eventConfig) {
+      const actions = getActions(eventConfig);
+      if (actions.length > 0) {
         props[event.name] = () => {
-          eventConfig?.actions?.forEach((action: ActionConfig) => {
+          actions.forEach((action) => {
             if (action.type === "goToLink") {
               window.location.href = action.url;
             } else if (action.type === "showMessage") {

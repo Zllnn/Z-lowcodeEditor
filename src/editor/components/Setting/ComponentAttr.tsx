@@ -1,6 +1,6 @@
 import { Form, Input, Select } from 'antd';
 import { useEffect } from 'react';
-import { ComponentConfig, ComponentSetter, useComponentConfigStore } from '../../stores/component-config';
+import { type ComponentSetter, useComponentConfigStore } from '../../stores/component-config';
 import { useComponetsStore } from '../../stores/components';
 
 export function ComponentAttr() {
@@ -13,7 +13,7 @@ export function ComponentAttr() {
   useEffect(() => {
     const data = form.getFieldsValue();
     form.setFieldsValue({...data, ...curComponent?.props});
-  }, [curComponent])
+  }, [curComponent, form])
 
   if (!curComponentId || !curComponent) return null;
   
@@ -27,7 +27,7 @@ export function ComponentAttr() {
     }
   }
 
-  function valueChange(changeValues: ComponentConfig) {
+  function valueChange(changeValues: Record<string, unknown>) {
     if (curComponentId) {
       updateComponentProps(curComponentId, changeValues);
     }

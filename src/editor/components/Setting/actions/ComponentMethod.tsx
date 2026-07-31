@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Component, getComponentById, useComponetsStore } from "../../../stores/components";
+import { useState } from "react";
+import { getComponentById, useComponetsStore } from "../../../stores/components";
 import { Select, TreeSelect } from "antd";
 import { useComponentConfigStore } from "../../../stores/component-config";
 
@@ -21,25 +21,14 @@ export function ComponentMethod(props: ComponentMethodProps) {
     const { value, onChange} = props;
     const { components, curComponentId } = useComponetsStore();
     const { componentConfig } = useComponentConfigStore();
-    const [selectedComponent, setSelectedComponent] = useState<Component | null>();
-
-    const [curId, setCurId] = useState<number>();
-    const [curMethod, setCurMethod] = useState<string>();
-
-    useEffect(() => {
-        if(value) {
-            setCurId(value.componentId)
-            setCurMethod(value.method)
-
-            setSelectedComponent(getComponentById(value.componentId, components))
-        }
-    }, [value]);
+    const [curId, setCurId] = useState<number | undefined>(value?.componentId);
+    const [curMethod, setCurMethod] = useState<string | undefined>(value?.method);
+    const selectedComponent = getComponentById(curId ?? null, components);
 
     function componentChange(value: number) {
         if (!curComponentId) return;
     
         setCurId(value);
-        setSelectedComponent(getComponentById(value, components))
     }
 
     function componentMethodChange(value: string) {

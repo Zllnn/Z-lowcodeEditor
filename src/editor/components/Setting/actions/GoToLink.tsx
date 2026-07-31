@@ -1,32 +1,27 @@
-import { Input } from "antd"
-import { ComponentEvent } from "../../../stores/component-config";
-import { useComponetsStore } from "../../../stores/components";
+import { Input } from "antd";
 
-export function GoToLink(props: { event: ComponentEvent }) {
-    const { event } = props;
+export interface GoToLinkConfig {
+  type: "goToLink";
+  url: string;
+}
 
-    const { curComponentId, curComponent, updateComponentProps } = useComponetsStore();
+interface GoToLinkProps {
+  value?: string;
+  onChange?: (config: GoToLinkConfig) => void;
+}
 
-    function urlChange(eventName: string, value: string) {
-        if (!curComponentId) return;
-
-        updateComponentProps(curComponentId, {
-          [eventName]: {
-            ...curComponent?.props?.[eventName],
-            url: value
-          }
-        })
-    }
-
-    return <div className='mt-[10px]'>
-        <div className='flex items-center gap-[10px]'>
-        <div>链接</div>
-        <div>
-            <Input
-                onChange={(e) => { urlChange(event.name, e.target.value) }}
-                value={curComponent?.props?.[event.name]?.url}
-            />
-        </div>
-        </div>
+export function GoToLink({ value, onChange }: GoToLinkProps) {
+  return (
+    <div className="mt-[40px] flex items-center gap-[10px]">
+      <div>链接：</div>
+      <Input
+        style={{ width: 500 }}
+        value={value}
+        onChange={(event) => onChange?.({
+          type: "goToLink",
+          url: event.target.value,
+        })}
+      />
     </div>
+  );
 }

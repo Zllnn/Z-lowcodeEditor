@@ -1,16 +1,24 @@
 import { create } from "zustand";
+import type { ElementType } from "react";
 import ContainerDev from "../materials/Container/dev";
 import ContainerProd from "../materials/Container/prod";
 import ButtonDev from "../materials/Button/dev";
 import ButtonProd from "../materials/Button/prod";
 import PageDev from "../materials/Page/dev";
 import PageProd from "../materials/Page/prod";
+import ModalDev from "../materials/Modal/dev";
+import ModalProd from "../materials/Modal/prod";
+
+export interface ComponentSetterOption {
+  label: string;
+  value: string | number;
+}
 
 export interface ComponentSetter {
   name: string;
   label: string;
   type: string;
-  [key: string]: any;
+  options?: ComponentSetterOption[];
 }
 
 export interface ComponentEvent {
@@ -25,14 +33,14 @@ export interface ComponentMethod {
 
 export interface ComponentConfig {
   name: string;
-  defaultProps: Record<string, any>;
+  defaultProps: Record<string, unknown>;
   desc: string;
   setter?: ComponentSetter[];
   stylesSetter?: ComponentSetter[];
   events?: ComponentEvent[];
   methods?: ComponentMethod[];
-  dev: any;
-  prod: any;
+  dev: ElementType;
+  prod: ElementType;
 }
 
 interface State {

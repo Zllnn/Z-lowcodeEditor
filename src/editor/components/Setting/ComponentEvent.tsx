@@ -1,14 +1,14 @@
-import { Collapse, Input, Select, CollapseProps, Button} from 'antd';
+import { Collapse, type CollapseProps, Button} from 'antd';
 import { useComponetsStore } from '../../stores/components';
 import { useComponentConfigStore } from '../../stores/component-config';
 import type { ComponentEvent } from '../../stores/component-config';
-import { ActionConfig, ActionModal } from './ActionModal';
+import { type ActionConfig, ActionModal } from './ActionModal';
 import { useState } from 'react';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
 export function ComponentEvent() {
 
-    const { curComponentId, curComponent, updateComponentProps } = useComponetsStore();
+    const { curComponent, updateComponentProps } = useComponetsStore();
     const { componentConfig } = useComponentConfigStore();
     const [actionModalOpen, setActionModalOpen] = useState(false);
     const [curEvent, setCurEvent] = useState<ComponentEvent>();
@@ -22,9 +22,7 @@ export function ComponentEvent() {
             return;
         }
 
-        const actions = curComponent.props[event.name]?.actions;
-
-        actions.splice(index, 1)
+        const actions = getActions(curComponent.props[event.name]).filter((_, actionIndex) => actionIndex !== index);
 
         updateComponentProps(curComponent.id,  { 
             [event.name]: { 
@@ -33,10 +31,11 @@ export function ComponentEvent() {
         })
     }
 
-    function editAction(config: ActionConfig, index: number) {
+    function editAction(event: ComponentEvent, config: ActionConfig, index: number) {
         if(!curComponent) {
             return;
         }
+        setCurEvent(event);
         setCurAction(config);
         setCurActionIndex(index)
 
@@ -52,19 +51,21 @@ export function ComponentEvent() {
                     e.stopPropagation();
 
                     setCurEvent(event);
+                    setCurAction(undefined);
+                    setCurActionIndex(undefined);
                     setActionModalOpen(true);
                 }}>添加动作</Button>
             </div>,
             children: <div>
                 {
-                    (curComponent.props[event.name]?.actions || []).map((item: ActionConfig, index: number) => {
-                        return <div>
+                    getActions(curComponent.props[event.name]).map((item, index) => {
+                        return <div key={`${item.type}-${index}`}>
                             {
                                 item.type === 'goToLink' ? <div key="goToLink" className='border border-[#aaa] m-[10px] p-[10px] relative'>
                                     <div className='text-[blue]'>跳转链接</div>
                                     <div>{item.url}</div>
                                     <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
-                                        onClick={() => editAction(item, index)}
+                                        onClick={() => editAction(event, item, index)}
                                     ><EditOutlined /></div>
                                     <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
                                         onClick={() => deleteAction(event, index)}
@@ -77,7 +78,7 @@ export function ComponentEvent() {
                                     <div>{item.config.type}</div>
                                     <div>{item.config.text}</div>
                                     <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
-                                        onClick={() => editAction(item, index)}
+                                        onClick={() => editAction(event, item, index)}
                                         ><EditOutlined /></div>
                                     <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
                                         onClick={() => deleteAction(event, index)}
@@ -88,7 +89,7 @@ export function ComponentEvent() {
                                 item.type === 'customJS' ? <div key="customJS" className='border border-[#aaa] m-[10px] p-[10px] relative'>
                                     <div className='text-[blue]'>自定义 JS</div>
                                     <div style={{ position: 'absolute', top: 10, right: 30, cursor: 'pointer' }}
-                                        onClick={() => editAction(item, index)}
+                                        onClick={() => editAction(event, item, index)}
                                     ><EditOutlined /></div>
                                     <div style={{ position: 'absolute', top: 10, right: 10, cursor: 'pointer' }}
                                         onClick={() => deleteAction(event, index)}
@@ -110,7 +111,7 @@ export function ComponentEvent() {
         if(curAction) {
             updateComponentProps(curComponent.id,  { 
                 [curEvent.name]: { 
-                    actions: curComponent.props[curEvent.name]?.actions.map((item: ActionConfig, index: number) => {
+                    actions: getActions(curComponent.props[curEvent.name]).map((item, index) => {
                         return index === curActionIndex ? config : item;
                     })
                 }
@@ -119,7 +120,7 @@ export function ComponentEvent() {
             updateComponentProps(curComponent.id,  { 
                 [curEvent.name]: { 
                     actions: [
-                        ...(curComponent.props[curEvent.name]?.actions || []),
+                        ...getActions(curComponent.props[curEvent.name]),
                         config
                     ]
                 }
@@ -127,6 +128,7 @@ export function ComponentEvent() {
         }
 
         setCurAction(undefined);
+        setCurActionIndex(undefined);
 
         setActionModalOpen(false)
     }
@@ -138,4 +140,9 @@ export function ComponentEvent() {
             setActionModalOpen(false)
         }}/>
     </div>
+}
+
+function getActions(value: unknown): ActionConfig[] {
+    if (!value || typeof value !== 'object' || !('actions' in value)) return [];
+    return Array.isArray(value.actions) ? value.actions as ActionConfig[] : [];
 }

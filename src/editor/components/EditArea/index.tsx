@@ -1,4 +1,4 @@
-import React, { MouseEventHandler, useEffect, useState } from "react";
+import React, { type MouseEventHandler, useState } from "react";
 import { useComponentConfigStore } from "../../stores/component-config";
 import { type Component, useComponetsStore } from "../../stores/components"
 import HoverMask from "../HoverMask";
@@ -12,12 +12,12 @@ export function EditArea() {
         return components.map((component: Component) => {
             const config = componentConfig?.[component.name]
 
-            if (!config?.component) {
+            if (!config?.dev) {
                 return null;
             }
             
             return React.createElement(
-                config.component,
+                config.dev,
                 {
                     key: component.id,
                     id: component.id,

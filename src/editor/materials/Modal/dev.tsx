@@ -1,9 +1,14 @@
-import { useMaterailDrop } from '../../hooks/useMaterailDrop';
-import { CommonComponentProps } from '../../interface';
+import type { ReactNode } from 'react';
+import { useMaterialDrop } from '../../hooks/useMaterialDrop';
+import type { CommonComponentProps } from '../../interface';
 
-function Modal({ id, children, title, styles }: CommonComponentProps) {
+interface ModalProps extends CommonComponentProps {
+    title?: ReactNode;
+}
 
-    const {canDrop, drop } = useMaterailDrop(['Button', 'Container'], id);
+function Modal({ id, children, title, styles }: ModalProps) {
+
+    const {canDrop, drop } = useMaterialDrop(['Button', 'Container'], id);
 
     return (
         <div 
