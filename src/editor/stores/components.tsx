@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
-import { create } from "zustand";
+import { create, type StateCreator } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface Component {
   id: number;
@@ -26,7 +27,7 @@ interface Action {
   setMode: (mode: State["mode"]) => void;
   setCurComponentId: (componentId: number | null) => void;
 }
-export const useComponetsStore = create<State & Action>((set, get) => ({
+const createComponentsStore: StateCreator<State & Action> = (set, get) => ({
   components: [
     {
       id: 1,
@@ -103,7 +104,11 @@ export const useComponetsStore = create<State & Action>((set, get) => ({
 
       return { components: [...state.components] };
     }),
-}));
+});
+
+export const useComponetsStore = create<State & Action>()(
+  persist(createComponentsStore, { name: "lowcode-editor" }),
+);
 
 export function getComponentById(
   id: number | null,
