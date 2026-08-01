@@ -6,7 +6,7 @@ export function Material() {
     const { componentConfig } = useComponentConfigStore();
 
     const components = useMemo(() => {
-        return Object.values(componentConfig);
+        return Object.values(componentConfig).filter((item) => item.name !== "Page");
      }, [componentConfig]);
 
     return <div>{

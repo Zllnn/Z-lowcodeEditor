@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { message } from "antd";
 import { useComponentConfigStore } from "../../stores/component-config";
 import { type Component, useComponetsStore } from "../../stores/components";
@@ -13,16 +13,17 @@ function getActions(value: unknown): ActionConfig[] {
 export function Preview() {
   const { components } = useComponetsStore();
   const { componentConfig } = useComponentConfigStore();
+  const componentRefs = useRef<Record<number, Record<string, (...args: unknown[]) => unknown> | null>>({});
 
   function handleEvent(component: Component) {
-    const props: Record<string, () => void> = {};
+    const props: Record<string, (...args: unknown[]) => void> = {};
 
     componentConfig[component.name].events?.forEach((event) => {
       const eventConfig = component.props[event.name];
 
       const actions = getActions(eventConfig);
       if (actions.length > 0) {
-        props[event.name] = () => {
+        props[event.name] = (...args) => {
           actions.forEach((action) => {
             if (action.type === "goToLink") {
               window.location.href = action.url;
@@ -33,14 +34,16 @@ export function Preview() {
                 message.error(action.config.text);
               }
             } else if (action.type === "customJS") {
-              const func = new Function("context", action.code);
+              const func = new Function("context", "args", action.code);
               func({
                 name: component.name,
                 props: component.props,
                 showMessage(content: string) {
                   message.success(content);
                 },
-              });
+              }, args);
+            } else if (action.type === "componentMethod") {
+              componentRefs.current[action.config.componentId]?.[action.config.method]?.(...args);
             }
           });
         };
@@ -64,6 +67,9 @@ export function Preview() {
           id: component.id,
           name: component.name,
           styles: component.styles,
+          ref: (ref: Record<string, (...args: unknown[]) => unknown> | null) => {
+            componentRefs.current[component.id] = ref;
+          },
           ...config.defaultProps,
           ...component.props,
           ...handleEvent(component),
