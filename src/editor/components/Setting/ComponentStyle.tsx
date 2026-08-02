@@ -28,12 +28,20 @@ function cssToStyles(source: string): CSSProperties {
   return styles as CSSProperties;
 }
 
+function StyleEditor({ styles, onChange }: { styles?: CSSProperties; onChange: (styles: CSSProperties) => void }) {
+  const [css, setCss] = useState(() => stylesToCss(styles));
+
+  return <CssEditor value={css} onChange={(value) => {
+    const nextCss = value ?? "";
+    setCss(nextCss);
+    onChange(cssToStyles(nextCss));
+  }} />;
+}
+
 export function ComponentStyle() {
   const [form] = Form.useForm();
   const { curComponentId, curComponent, updateComponentStyles } = useComponetsStore();
   const { componentConfig } = useComponentConfigStore();
-  const [css, setCss] = useState(() => stylesToCss(curComponent?.styles));
-
   useEffect(() => {
     form.setFieldsValue(curComponent?.styles);
   }, [curComponent, form]);
@@ -51,12 +59,6 @@ export function ComponentStyle() {
     updateComponentStyles(curComponentId!, changedValues);
   }
 
-  function handleEditorChange(value?: string) {
-    const nextCss = value ?? "";
-    setCss(nextCss);
-    updateComponentStyles(curComponentId!, cssToStyles(nextCss));
-  }
-
   return (
     <Form
       form={form}
@@ -70,7 +72,7 @@ export function ComponentStyle() {
         </Form.Item>
       ))}
       <div className="h-[200px] border-[1px] border-[#ccc]">
-        <CssEditor value={css} onChange={handleEditorChange} />
+        <StyleEditor key={curComponentId} styles={curComponent.styles} onChange={(styles) => updateComponentStyles(curComponentId, styles)} />
       </div>
     </Form>
   );
