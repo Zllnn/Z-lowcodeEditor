@@ -8,7 +8,7 @@ interface ModalProps extends CommonComponentProps {
 
 function Modal({ id, children, title, styles }: ModalProps) {
 
-    const {canDrop, drop } = useMaterialDrop(['Button', 'Container'], id);
+    const {canDrop, drop } = useMaterialDrop(['Button', 'Container', 'Table', 'Form'], id);
 
     return (
         <div 

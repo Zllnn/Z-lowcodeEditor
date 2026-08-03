@@ -4,7 +4,7 @@ import type { CommonComponentProps } from '../../interface';
 
 const Container = ({ id, name, children, styles }: CommonComponentProps) => {
 
-    const {canDrop, drop } = useMaterialDrop(['Button', 'Container'], id);
+    const {canDrop, drop } = useMaterialDrop(['Button', 'Container', 'Table', 'Form'], id);
 
     const [, drag] = useDrag({
         type: name,
