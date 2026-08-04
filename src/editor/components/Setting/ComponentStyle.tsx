@@ -72,7 +72,7 @@ export function ComponentStyle() {
         </Form.Item>
       ))}
       <div className="h-[200px] border-[1px] border-[#ccc]">
-        <StyleEditor key={curComponentId} styles={curComponent.styles} onChange={(styles) => updateComponentStyles(curComponentId, styles)} />
+        <StyleEditor key={curComponentId} styles={curComponent.styles} onChange={(styles) => updateComponentStyles(curComponentId, styles, true)} />
       </div>
     </Form>
   );
