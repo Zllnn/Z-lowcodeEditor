@@ -127,7 +127,7 @@ function SelectedMask({
             menu={{
               items: parentComponents.map((item) => ({
                 key: item.id,
-                label: item.name,
+                label: item.desc,
               })),
               onClick: ({ key }) => {
                 setCurComponentId(+key);
@@ -145,7 +145,7 @@ function SelectedMask({
                 whiteSpace: "nowrap",
               }}
             >
-              {curSelectedComponent?.name}
+              {curSelectedComponent?.desc}
             </div>
           </Dropdown>
           {curComponentId !== 1 && (
