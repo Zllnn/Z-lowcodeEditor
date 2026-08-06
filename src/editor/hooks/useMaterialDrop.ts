@@ -1,6 +1,6 @@
 import { useDrop } from "react-dnd";
 import { useComponentConfigStore } from "../stores/component-config";
-import { getComponentById, useComponetsStore } from "../stores/components";
+import { useComponetsStore } from "../stores/components";
 
 export interface ItemType {
   type: string;
@@ -9,7 +9,7 @@ export interface ItemType {
 }
 
 export function useMaterialDrop(accept: string[], id: number) {
-    const { addComponent, deleteComponent, components } = useComponetsStore();
+    const { addComponent, moveComponent } = useComponetsStore();
     const { componentConfig } = useComponentConfigStore();
 
     const [{ canDrop }, connectDrop] = useDrop(() => ({
@@ -21,11 +21,7 @@ export function useMaterialDrop(accept: string[], id: number) {
             }
 
             if(item.dragType === 'move') {
-              const component = getComponentById(item.id, components)!;
-
-              deleteComponent(item.id);
-
-              addComponent(component, id)
+              moveComponent(item.id, id);
             } else {
               const config = componentConfig[item.type];
 

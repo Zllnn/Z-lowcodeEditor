@@ -22,6 +22,7 @@ interface State {
 interface Action {
   addComponent: (component: Component, parentId?: number) => void;
   deleteComponent: (componentId: number) => void;
+  moveComponent: (componentId: number, parentId: number) => void;
   updateComponentProps: (componentId: number, props: Record<string, unknown>) => void;
   updateComponentStyles: (componentId: number, styles: CSSProperties, replace?: boolean) => void;
   setMode: (mode: State["mode"]) => void;
@@ -82,6 +83,24 @@ const createComponentsStore: StateCreator<State & Action> = (set, get) => ({
       }
     }
   },
+  moveComponent: (componentId, parentId) =>
+    set((state) => {
+      const component = getComponentById(componentId, state.components);
+      const parent = getComponentById(parentId, state.components);
+
+      if (!component || !parent || componentId === parentId || component.parentId === parentId || containsComponent(component, parentId)) {
+        return state;
+      }
+
+      const { components, removed } = removeComponent(componentId, state.components);
+      if (!removed) return state;
+
+      const movedComponent = { ...removed, parentId };
+      return {
+        components: appendChild(parentId, movedComponent, components),
+        curComponent: state.curComponentId === componentId ? movedComponent : state.curComponent,
+      };
+    }),
   updateComponentProps: (componentId, props) =>
     set((state) => {
       const component = getComponentById(componentId, state.components);
@@ -124,4 +143,38 @@ export function getComponentById(
     }
   }
   return null;
+}
+
+function containsComponent(component: Component, componentId: number): boolean {
+  return component.id === componentId || component.children?.some((child) => containsComponent(child, componentId)) === true;
+}
+
+function removeComponent(componentId: number, components: Component[]): { components: Component[]; removed: Component | null } {
+  let removed: Component | null = null;
+  const nextComponents = components.flatMap((component) => {
+    if (component.id === componentId) {
+      removed = component;
+      return [];
+    }
+
+    if (!component.children?.length) return [component];
+
+    const result = removeComponent(componentId, component.children);
+    if (result.removed) removed = result.removed;
+    return [{ ...component, children: result.components }];
+  });
+
+  return { components: nextComponents, removed };
+}
+
+function appendChild(parentId: number, child: Component, components: Component[]): Component[] {
+  return components.map((component) => {
+    if (component.id === parentId) {
+      return { ...component, children: [...(component.children ?? []), child] };
+    }
+
+    return component.children?.length
+      ? { ...component, children: appendChild(parentId, child, component.children) }
+      : component;
+  });
 }
