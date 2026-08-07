@@ -10,6 +10,15 @@ interface TableColumnProps {
     dataIndex?: string;
 }
 
+function DraggableColumnTitle({ id, title }: TableColumnProps) {
+    const [, drag] = useDrag(() => ({
+        type: 'TableColumn',
+        item: { type: 'TableColumn', dragType: 'move' as const, id },
+    }), [id]);
+
+    return <div ref={(node) => { drag(node); }} className='m-[-16px] cursor-move p-[16px]' data-component-id={id}>{title}</div>;
+}
+
 function Table({ id, name, children, styles }: CommonComponentProps) {
 
     const {canDrop, drop } = useMaterialDrop(['TableColumn'], id);
@@ -32,7 +41,7 @@ function Table({ id, name, children, styles }: CommonComponentProps) {
         return React.Children.toArray(children).flatMap((item) => {
             if (!React.isValidElement<TableColumnProps>(item)) return [];
             return [{
-                title: <div className='m-[-16px] p-[16px]' data-component-id={item.props?.id}>{item.props?.title}</div>,
+                title: <DraggableColumnTitle {...item.props} />,
                 dataIndex: item.props?.dataIndex,
                 key: item.props.id
             }]

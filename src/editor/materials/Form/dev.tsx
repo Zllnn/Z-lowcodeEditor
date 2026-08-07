@@ -6,8 +6,23 @@ import type { CommonComponentProps } from "../../interface";
 
 interface FormItemProps {
   id: number;
-  label?: React.ReactNode;
   name?: string;
+  label?: React.ReactNode;
+}
+
+function DraggableFormItem({ id, name, label }: FormItemProps) {
+  const [, drag] = useDrag(() => ({
+    type: "FormItem",
+    item: { type: "FormItem", dragType: "move" as const, id },
+  }), [id]);
+
+  return (
+    <div ref={(node) => { drag(node); }} className="cursor-move" data-component-id={id}>
+      <AntdForm.Item name={name} label={label}>
+        <Input style={{ pointerEvents: "none" }} />
+      </AntdForm.Item>
+    </div>
+  );
 }
 
 export default function Form({ id, name, children, styles }: CommonComponentProps) {
@@ -36,9 +51,7 @@ export default function Form({ id, name, children, styles }: CommonComponentProp
     >
       <AntdForm labelCol={{ span: 6 }} wrapperCol={{ span: 18 }}>
         {items.map((item) => (
-          <AntdForm.Item key={item.id} name={item.name} label={item.label} data-component-id={item.id}>
-            <Input style={{ pointerEvents: "none" }} />
-          </AntdForm.Item>
+          <DraggableFormItem key={item.id} {...item} />
         ))}
       </AntdForm>
     </div>
