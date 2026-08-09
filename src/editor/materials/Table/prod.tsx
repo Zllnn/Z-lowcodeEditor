@@ -15,21 +15,32 @@ interface TableProps extends CommonComponentProps {
 
 export default function Table({ children, styles, url }: TableProps) {
   const [data, setData] = useState<Record<string, unknown>[]>([]);
-  const [loading, setLoading] = useState(() => Boolean(url));
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!url) return;
 
     const controller = new AbortController();
-    fetch(url, { signal: controller.signal })
+    let active = true;
+    void Promise.resolve().then(() => {
+      if (active) setLoading(true);
+    });
+    void fetch(url, { signal: controller.signal })
       .then((response) => response.ok ? response.json() : Promise.reject(response))
-      .then((result: unknown) => setData(Array.isArray(result) ? result : []))
-      .catch((error: unknown) => {
-        if (!(error instanceof DOMException && error.name === "AbortError")) setData([]);
+      .then((result: unknown) => {
+        if (active) setData(Array.isArray(result) ? result : []);
       })
-      .finally(() => setLoading(false));
+      .catch((error: unknown) => {
+        if (active && !(error instanceof DOMException && error.name === "AbortError")) setData([]);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
-    return () => controller.abort();
+    return () => {
+      active = false;
+      controller.abort();
+    };
   }, [url]);
 
   const columns = useMemo(() =>
@@ -44,5 +55,5 @@ export default function Table({ children, styles, url }: TableProps) {
       }];
     }), [children]);
 
-  return <AntdTable columns={columns} dataSource={data} loading={loading} pagination={false} rowKey="id" style={styles} />;
+  return <AntdTable columns={columns} dataSource={url ? data : []} loading={Boolean(url) && loading} pagination={false} rowKey="id" style={styles} />;
 }
