@@ -1,75 +1,59 @@
-# React + TypeScript + Vite
+# 低代码编辑器
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+一个基于 React 的可视化页面搭建器。通过拖拽物料、配置组件属性/样式/事件，在编辑态完成页面编排，并可切换到预览态运行页面交互。
 
-Currently, two official plugins are available:
+## 主要功能
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- 内置页面、容器、按钮、弹窗、表格/表格列、表单/表单项物料。
+- 支持嵌套拖放和移动组件，左侧提供物料、大纲与组件源码视图。
+- 支持配置组件属性、CSS 样式和事件；事件可执行链接跳转、消息提示、自定义 JavaScript 及组件方法调用。
+- 预览态支持按钮事件、弹窗开关、表单提交和必填校验，以及远程 JSON 表格数据与日期列格式化。
+- 编辑器组件树和当前模式会持久化到浏览器本地存储。
 
-## React Compiler
+## 技术栈
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19、TypeScript 6、Vite 8
+- Ant Design、React DnD、Zustand（含持久化中间件）
+- Monaco Editor、Allotment、Tailwind CSS
 
-## Expanding the ESLint configuration
+## 安装与启动
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+需要 Node.js 与 npm。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+启动后按终端输出的本地地址访问应用。
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 构建与检查
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run build
+npm run lint
+```
 
+构建命令会先执行 TypeScript 项目构建，再生成 Vite 生产产物；`npm run preview` 可本地预览构建结果。
+
+## 核心使用方法
+
+1. 在左侧“物料”面板拖入组件；容器、表格和表单分别接收其允许的子组件。
+2. 点击画布中的组件，在右侧配置属性、样式或事件；事件可添加多个动作。
+3. 通过左侧“大纲”快速选中组件，“源码”查看当前组件树的 JSON。
+4. 点击顶部“预览”运行页面；再次点击“退出预览”回到编辑态。
+
+表格的数据地址应返回 JSON 数组。表单的提交事件可通过“组件方法”动作触发，例如由按钮调用表单的 `submit` 方法。
+
+## 项目目录
+
+```text
+src/
+├── editor/
+│   ├── components/       # 编辑器布局、物料、配置面板与预览
+│   ├── hooks/            # 拖放逻辑
+│   ├── materials/        # 各物料的编辑态与预览态实现
+│   └── stores/           # 组件注册与编辑器状态
+├── App.tsx               # 应用入口组件
+└── main.tsx              # React 挂载入口
 ```
